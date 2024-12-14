@@ -1,6 +1,43 @@
 <!DOCTYPE html>
-<html lang="hu">
-    <head sytle="backgound:color=black">
-        <
-    </head>
+
+<html lang="hu" style="border: 1px solid yellow;">
+
+<title>CsontRAKETA</title>
+
+    <header style="background-color: black;">
+        <center>
+            <h1 style="background-color: black;color: gray;font-family: monospace;">
+                CsontRAKETA             
+            </h1>
+        </center>
+    </header>
+
+    <body style="background-color: black;">
+
+        <center>
+            <h3 style="background-color: black;color: gray;font-family: monospace;">
+                404 - AZ OLDAL NEM TALÁLHATÓ. KÉREM NYOMJON RÁ A GOMBRA!
+            </h3>
+            <button style="border: 1px solid yellow;background-color: black;color:yellow;" onclick="window.location.href='https://visit.japan.is'">
+                Kattints rám! 
+            </button>
+        </center>
+
+        <p id="idd" style="color: lightgreen; background-color: black; font-family: monospace;">ip</p>
+        <script type="application/javascript">
+            function getIP(json) {
+        var ip = json.ip;
+        var p = document.getElementById("idd");
+        if (p) {
+            p.textContent = ip;
+        } else {
+        console.error("PECH - 'idd'");
+        }
+        }
+        </script>
+        <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
+        <p style="color: lightgreen; background-color: black; font-family: monospace;">SAVED TO DATABASE</p>
+
+    </body>
+    
 </html>
