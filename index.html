@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<!--sussy baka | -->
-<html lang="hu" style="border: 1px solid yellow;">
-
+<html lang="hu" style="border: 3px outset yellow;">
 <title>CsontRAKETA</title>
 
     <header style="background-color: black;">
@@ -13,30 +11,129 @@
     </header>
 
     <body style="background-color: black;">
-
+        
         <center>
             <h3 style="background-color: black;color: gray;font-family: monospace;">
-                404 - AZ OLDAL NEM TALÁLHATÓ. KÉREM NYOMJON RÁ A GOMBRA!
+                KÉREM NE NYOMJON RÁ A GOMBRA!
             </h3>
-            <button style="border: 1px solid yellow;background-color: black;color:yellow;" onclick="window.location.href='https://visit.japan.is'">
-                Kattints rám! 
-            </button>
         </center>
 
-        <p id="idd" style="color: lightgreen; background-color: black; font-family: monospace;">ip</p>
-        <script type="application/javascript">
-            function getIP(json) {
-        var ip = json.ip;
-        var p = document.getElementById("idd");
-        if (p) {
-            p.textContent = ip;
-        } else {
-        console.error("PECH - 'idd'");
-        }
-        }
+        <div style="position: relative;display: flex; justify-content: space-between;">
+
+            <div>
+            <p id="idd" style="color: lightgreen; background-color: black; font-family: monospace;">ip</p>
+            <script type="application/javascript">
+                function getIP(json) {
+            var ip = json.ip;
+            var p = document.getElementById("idd");
+            if (p) {
+                p.textContent = ip;
+            } else {
+            console.error("PECH - 'idd'");
+            }
+            }
+            </script>
+            <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
+            <p style="color: lightgreen; background-color: black; font-family: monospace;">SAVED TO DATABASE</p>
+            </div>
+
+            <center>
+                <div style="left: 47%;position: absolute;top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
+                    <button style="border: 3px outset yellow;background-color: black;color:yellow;" onclick="window.location.href='https://visit.japan.is'">
+                        Kattints rám! 
+                    </button>
+                </div>
+            </center>
+
+            <center><img src="img1.png" height="50"></center>
+
+        </div>
+
+        <div id="chat" style="color: yellow;font-family: monospace;display: block;border: 1px solid black;">
+            <ul id="messages"></ul>
+        </div>
+        <input type="text" id="message" placeholder="Írj ide" style="border: 3px solid yellow;background-color: #000000;color: yellow;outline: none;">
+        <button onclick="sendMessage()" style="border: 3px solid yellow;background-color: #000000;color: yellow;">Küldés</button>
+        <style>
+            #chat {
+                border: 1px solid #ccc;
+                padding: 10px;
+                height: 300px;
+                overflow-y: scroll;
+            }
+
+            #messages {
+            list-style: none;
+            padding: 0;
+            }
+
+            .message {
+            margin-bottom: 5px;
+            }
+
+
+            /* width */
+            ::-webkit-scrollbar {
+            width: 10px;
+            }
+
+            /* Track */
+            ::-webkit-scrollbar-track {
+            background: #000000; 
+            }
+            
+            /* Handle */
+            ::-webkit-scrollbar-thumb {
+            background: yellow; 
+            }
+
+            /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+            background: rgb(171, 171, 0); 
+            }
+        </style>
+
+        <script>
+            const messages = document.getElementById('messages');
+            const messageInput = document.getElementById('message');
+
+            // Üzenetek tárolása a localStorage-ban
+            let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+
+            // Új üzenet hozzáadása a chathez és a localStorage-hoz
+            function sendMessage() {
+                const message = messageInput.value;
+                const timestamp = new Date().toLocaleString();
+                const user = 'USER'; // Ide teheted a felhasználó nevét, ha van ilyen
+
+                const newMessage = {
+                    user,
+                    message,
+                    timestamp
+                };
+
+                chatHistory.push(newMessage);
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+
+                // Üzenet megjelenítése a chat ablakban
+                const li = document.createElement('li');
+                li.textContent = `${user} (${timestamp}): ${message}`;
+                messages.appendChild(li);
+
+                messageInput.value = '';
+            }
+
+            // A mentett üzenetek betöltése az oldal betöltődésekor
+            function loadMessages() {
+                chatHistory.forEach(message => {
+                    const li = document.createElement('li');
+                    li.textContent = `${message.user} (${message.timestamp}): ${message.message}`;
+                    messages.appendChild(li);
+                });
+            }
+
+            // Üzenetek betöltése az oldal betöltődésekor
         </script>
-        <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
-        <p style="color: lightgreen; background-color: black; font-family: monospace;">SAVED TO DATABASE</p>
 
     </body>
     
