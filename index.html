@@ -26,22 +26,38 @@
             <button style="border: 1px solid blue;background-color: white;color:blue;" onclick="window.location.href='https://github.com/csontraketa/pccrasher'">pccrasher</button>
         
             <p>1 section .data</p>
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>2      hello:     db 'Hello world!',10</p>
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>3      helloLen:  equ $-hello</p>
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>4</p>     
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>5 section .text</p>
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>6      global _start</p>
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>7</p>       
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>8 _start:</p>
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>9      mov eax,4</p>         
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>A      mov ebx,1</p>           
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>B      mov ecx,hello</p>        
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>C      mov edx,helloLen</p>    
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>D </p>   
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>E      int 80h</p> 
+	    <hr style="height:30pt; visibility:hidden;" />
             <p>F      mov eax,1</p>         
+	    <hr style="height:30pt; visibility:hidden;" />
 	    <p>G      mov ebx,0</p>          
-	    <p>H      int 80h;</p>   
+	    <hr style="height:30pt; visibility:hidden;" />
+	    <p>H      int 80h;</p> 
         
     </body>
     
