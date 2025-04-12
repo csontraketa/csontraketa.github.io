@@ -27,22 +27,22 @@
 
 	    <div style="line-height:0;">
             	<p>1 section .data</p>
-	    	<p>2  hello:     db 'Hello world!',10</p>
-	    	<p>3  helloLen:  equ $-hello</p>
+	    	<p>2 . hello:     db 'Hello world!',10</p>
+	    	<p>3 . helloLen:  equ $-hello</p>
             	<p>4</p>     
             	<p>5 section .text</p>
-	    	<p>6  global _start</p>
+	    	<p>6 . global _start</p>
 	    	<p>7</p>       
             	<p>8 _start:</p>
-	    	<p>9  mov eax,4</p>         
-	    	<p>A  mov ebx,1</p>           
-	    	<p>B  mov ecx,hello</p>        
-            	<p>C  mov edx,helloLen</p>    
+	    	<p>9 . mov eax,4</p>         
+	    	<p>A . mov ebx,1</p>           
+	    	<p>B . mov ecx,hello</p>        
+            	<p>C . mov edx,helloLen</p>    
             	<p>D </p>   
-	    	<p>E  int 80h</p> 
-            	<p>F  mov eax,1</p>         
-	    	<p>G  mov ebx,0</p>          
-	    	<p>H  int 80h;</p> 
+	    	<p>E . int 80h</p> 
+            	<p>F . mov eax,1</p>         
+	    	<p>G . mov ebx,0</p>          
+	    	<p>H . int 80h;</p> 
 	    </div>
 	    
     </body>
