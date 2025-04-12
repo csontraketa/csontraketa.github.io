@@ -1,54 +1,13 @@
 <!DOCTYPE html>   <!-- -->
 <html lang="hu" style="border: 3px outset yellow;">
-<title>CsontRAKETA</title>
 
-    <header style="background-color: black;">
-        <center>
-            <h1 style="background-color: black;color: gray;font-family: monospace;">
-                CsontRAKETA             
-            </h1>
-        </center>
-    </header>
+    <title>CsontRAKETA</title>
 
-    <body style="background-color: black;">
+    
+    <body style="color:blue; background-color:black;">
+
+        <head> I am csontrakéta </head>
         
-        <center>
-            <h3 style="background-color: black;color: gray;font-family: monospace;">
-                KÉREM NE NYOMJON RÁ A GOMBRA!
-            </h3>
-        </center>
-
-        <div style="position: relative;display: flex; justify-content: space-between;">
-
-            <div>
-            <p id="idd" style="color: lightgreen; background-color: black; font-family: monospace;">ip</p>
-            <script type="application/javascript">
-                function getIP(json) {
-            var ip = json.ip;
-            var p = document.getElementById("idd");
-            if (p) {
-                p.textContent = ip;
-            } else {
-            console.error("PECH - 'idd'");
-            }
-            }
-            </script>
-            <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
-            <p style="color: lightgreen; background-color: black; font-family: monospace;">SAVED TO DATABASE</p>
-            </div>
-
-            <center>
-                <div style="left: 47%;position: absolute;top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
-                    <button style="border: 3px outset yellow;background-color: black;color:yellow;" onclick="window.location.href='https://visit.japan.is'">
-                        Kattints rám! 
-                    </button>
-                </div>
-            </center>
-
-            <center><img src="img1.png" height="50"></center>
-
-        </div>
-
     </body>
     
 </html>
