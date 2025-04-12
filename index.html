@@ -26,18 +26,18 @@
             <button style="border: 1px solid blue;background-color: white;color:blue;" onclick="window.location.href='https://github.com/csontraketa/pccrasher'">pccrasher</button>
         
             <p>1 section .data</p>
-	    <p>3        hello:     db 'Hello world!',10</p>
+	    <p>2        hello:     db 'Hello world!',10</p>
 	    <p>3        helloLen:  equ $-hello</p>
-            <p><4/p>     
-            <p>5section .text</p>
+            <p>4</p>     
+            <p>5 section .text</p>
 	    <p>6        global _start</p>
-	    <p>7</p>
-            <p>8_start:</p>
+	    <p>7</p>       
+            <p>8 _start:</p>
 	    <p>9        mov eax,4</p>         
 	    <p>10       mov ebx,1</p>           
 	    <p>11       mov ecx,hello</p>        
             <p>12       mov edx,helloLen</p>    
-            <p>13</p>   
+            <p>13 </p>   
 	    <p>14       int 80h</p> 
             <p>15       mov eax,1</p>         
 	    <p>16       mov ebx,0</p>          
