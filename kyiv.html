@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ukrajnai Riasztás Ellenőrző</title>
+    <title>ProjectKyiv</title>
     <style>
         body { font-family: sans-serif; text-align: center; margin-top: 50px; }
         #status { font-size: 1.2em; font-weight: bold; }
@@ -12,57 +12,36 @@
     </style>
 </head>
 <body>
-
-    <h1>Ukrajnai Légiriadó Állapota</h1>
-    <p>A legutóbbi riasztás óta eltelt idő:</p>
     <div id="status">Adatok lekérdezése...</div>
-
     <script>
-        // A cél weboldal URL-je
         const targetUrl = 'https://alerts.in.ua/';
-
-        // A CORS proxy URL-je, ami becsomagolja a cél URL-t
-        // Az allorigins.win egy ingyenes, nyílt proxy
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-        // A DOM elem, ahova az eredményt írjuk
         const statusElement = document.getElementById('status');
-
-        // Adatok lekérése a proxy-n keresztül
         fetch(proxyUrl)
             .then(response => {
                 if (response.ok) {
-                    return response.json(); // A proxy JSON formátumban adja vissza a választ
+                    return response.json(); 
                 }
                 throw new Error('Hálózati hiba a proxy lekérdezésekor.');
             })
             .then(data => {
-                // A kapott HTML tartalom a 'data.contents'-ben van
                 const htmlContent = data.contents;
-
-                // Létrehozunk egy ideiglenes DOM-ot a memóriában a kapott HTML-ből,
-                // hogy tudjunk benne keresni anélkül, hogy a saját oldalunkat módosítanánk.
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlContent, 'text/html');
-
-                // Megkeressük az elemet a helyes 'alert_time' osztálynévvel
                 const alertTimeElement = doc.querySelector('.alert_time');
 
                 if (alertTimeElement) {
-                    // Ha találtunk elemet, kiírjuk a szövegét
                     const timeText = alertTimeElement.innerText.trim();
                     statusElement.innerText = timeText;
                     statusElement.classList.add('success');
                 } else {
-                    // Ha nem találtunk ilyen elemet, valószínűleg nincs aktív riasztás
                     statusElement.innerText = 'Jelenleg nincs aktív riasztás.';
                     statusElement.classList.add('success');
                 }
             })
             .catch(error => {
-                // Hiba esetén kiírjuk a hibaüzenetet
                 console.error('Hiba történt:', error);
-                statusElement.innerText = 'Hiba a riasztási adatok lekérdezése közben.';
+                statusElement.innerText = 'Houston, we have a problem.';
                 statusElement.classList.add('error');
             });
     </script>
