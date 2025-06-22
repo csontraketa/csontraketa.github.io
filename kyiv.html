@@ -3,224 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectKyiv</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Kyiv statusz</title>
     <style>
-        :root {
-            --color-bg: #1a1d23;
-            --color-surface: #252a31;
-            --color-primary-text: #e0e0e0;
-            --color-secondary-text: #a0a0a0;
-            --color-border: #3a414c;
-            
-            --color-ok-bg: #1d3c2b;
-            --color-ok-border: #2f9462;
-            
-            --color-alert-bg: #4d2828;
-            --color-alert-border: #e53935;
-
-            --color-error-bg: #4a4a4a;
-            --color-error-border: #9e9e9e;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--color-bg);
-            color: var(--color-primary-text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            color: var(--color-secondary-text);
-            font-size: 1.1em;
-            margin-top: 0;
-        }
-        
-        #last-updated {
-            font-size: 0.9em;
-            color: var(--color-secondary-text);
-            margin-bottom: 20px;
-        }
-
-        #status-card {
-            background-color: var(--color-surface);
-            border: 2px solid var(--color-border);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            transition: border-color 0.5s ease, background-color 0.5s ease;
-        }
-        
-        /* Állapotokhoz tartozó stílusok */
-        #status-card.status-checking {
-            border-color: var(--color-border);
-        }
-        #status-card.status-ok {
-            background-color: var(--color-ok-bg);
-            border-color: var(--color-ok-border);
-        }
-        #status-card.status-alert {
-            background-color: var(--color-alert-bg);
-            border-color: var(--color-alert-border);
-        }
-        #status-card.status-error {
-            background-color: var(--color-error-bg);
-            border-color: var(--color-error-border);
-        }
-
-        #status-text {
-            font-size: 2.2em;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        #status-info {
-            font-size: 1em;
-            color: var(--color-secondary-text);
-            margin: 5px 0 0 0;
-            min-height: 1.2em;
-        }
-
-        #regions-container {
-            display: none; /* Alapból rejtett */
-            background-color: var(--color-surface);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
-        }
-
-        #regions-container h3 {
-            margin-top: 0;
-            font-size: 1.5em;
-            border-bottom: 1px solid var(--color-border);
-            padding-bottom: 10px;
-        }
-
-        #regions-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        #regions-list li {
-            background-color: var(--color-bg);
-            padding: 10px 15px;
-            border-radius: 6px;
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #1a1a1a; color: #f0f0f0; }
+        .container { text-align: center; padding: 40px; background-color: #2c2c2c; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
+        h1 { color: #ffffff; font-size: 2em; }
+        #status { font-size: 1.2em; margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: 500; }
+        .status-fresh-alert { color: #ff9800; font-weight: bold; }
+        .status-alert { color: cyan; }
+        .status-ok { color: lime; }
+        .status-error { color: #ff4d4d; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <header>
-            <h1>ProjectKyiv</h1>
-            <p>alerts.in.ua</p>
-        </header>
-
-        <p id="last-updated">FRISSÍTÉS...</p>
-
-        <div id="status-card" class="status-checking">
-            <h2 id="status-text">ELLENŐRZÉS...</h2>
-            <p id="status-info"></p>
-        </div>
-
-        <div id="regions-container">
-            <h3>Régiók:</h3>
-            <ul id="regions-list"></ul>
-        </div>
+        <h1>Kijevi helyzet</h1>
+        <p id="status">Státusz lekérdezése...</p>
     </div>
-
     <script>
-        const statusCard = document.getElementById('status-card');
-        const statusText = document.getElementById('status-text');
-        const statusInfo = document.getElementById('status-info');
-        const regionsContainer = document.getElementById('regions-container');
-        const regionsList = document.getElementById('regions-list');
-        const lastUpdatedElement = document.getElementById('last-updated');
-        const TARGET_URL = 'https://alerts.in.ua/';
-        const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET_URL)}`;
-        const UPDATE_INTERVAL = 60000; 
-
-        async function updateStatus() {
-            statusCard.className = 'status-checking';
-            statusText.textContent = 'ELLENŐRZÉS...';
-            statusInfo.textContent = '';
-            
-            try {
-                const response = await fetch(PROXY_URL);
-                if (!response.ok) {
-                    throw new Error(`Hálózati hiba: ${response.status}`);
-                }
-                const data = await response.json();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                const regionElements = doc.querySelectorAll('.alarm_blocks .map-region-name');
-                const timeElements = doc.querySelectorAll('.alarm_blocks .alert_time');
-
-                if (regionElements.length > 0) {
-                    statusCard.className = 'status-alert';
-                    statusText.textContent = 'RIASZTÁS VAN ÉRVÉNYBEN';
-                    
-                    const regionNames = Array.from(regionElements).map(el => el.textContent.trim());
-                    regionsList.innerHTML = regionNames.map(name => `<li>${name}</li>`).join('');
-                    regionsContainer.style.display = 'block';
-
-                    if (timeElements.length > 0) {
-                        const alertTimes = Array.from(timeElements).map(el => {
-                           const [hours, minutes] = el.textContent.trim().split(':');
-                           return parseInt(hours) * 60 + parseInt(minutes); 
-                        });
-                        const earliestTimeInMinutes = Math.min(...alertTimes);
-                        const hours = Math.floor(earliestTimeInMinutes / 60).toString().padStart(2, '0');
-                        const minutes = (earliestTimeInMinutes % 60).toString().padStart(2, '0');
-                        statusInfo.textContent = `A legkorábbi riasztás ${hours}:${minutes} (kijevi idő) óta tart.`;
-                    }
-                    
-                } else {
-                    statusCard.className = 'status-ok';
-                    statusText.textContent = 'JELENLEG NYUGALOM VAN';
-                    statusInfo.textContent = 'Nincs aktív riasztás az ország területén.';
-                    regionsContainer.style.display = 'none';
-                }
-
-            } catch (error) {
-                console.error('Hiba történt az adatok lekérésekor:', error);
-                statusCard.className = 'status-error';
-                statusText.textContent = 'ADATLEKÉRÉSI HIBA';
-                statusInfo.textContent = 'Nem sikerült elérni a riasztási adatokat. Kérjük, próbálja meg később.';
-                regionsContainer.style.display = 'none';
-            } finally {
-                lastUpdatedElement.textContent = `Utoljára frissítve: ${new Date().toLocaleTimeString('hu-HU')}`;
-            }
-        }
-
-        updateStatus();
-        setInterval(updateStatus, UPDATE_INTERVAL);
+        const t="https://alerts.in.ua/",e=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById("status");function o(t){return.5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}function a(){const t=new Date,e=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Kyiv",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",hour12:!1}).formatToParts(t),s={};for(const o of e)o.type!=="literal"&&(s[o.type]=parseInt(o.value,10));return new Date(s.year,s.month-1,s.day,s.hour,s.minute,s.second)}fetch(e).then(t=>t.ok?t.json():Promise.reject(new Error("Hiba"))).then(t=>{const e=new DOMParser,r=e.parseFromString(t.contents,"text/html").getElementsByClassName("alert_time");if(r.length>0){let t=1/0;const n=a();for(const c of r){const e=c.innerHTML.trim(),[s,i]=e.split(":").map(Number),l=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),s,i,0);l<t&&(t=l)}const c=Date.now(),i=Math.floor((c-t)/6e4);if(s.classList.remove("status-alert","status-fresh-alert","status-ok","status-error"),i>=0&&i<=15)s.innerText=`FRISS RIASZTÁS! A legkorábbi jelzés ${i} perce kezdődött.`,s.classList.add("status-fresh-alert");else if(i>15){const t=Math.floor(i/30),e=.5*t,r=.5*(t+1),n=`${o(e)} és ${o(r)} órája`;s.innerText=`Riasztás van érvényben. A legkorábbi ${n} kezdődött.`,s.classList.add("status-alert")}else s.innerText="Időfeldolgozási hiba.",s.classList.add("status-error")}else s.innerText="Nincs riasztás.",s.classList.add("status-ok")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("status-error")});
     </script>
-
 </body>
 </html>
