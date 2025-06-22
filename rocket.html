@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Csontrakéta Kilövőállomás</title>
+
+    <!-- ===== CSS STÍLUSOK ===== -->
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #1a202c;
+            color: #edf2f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        #kilovoallomas {
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #vezerlopult {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        #szoveg {
+            margin: 0 0 15px 0;
+            font-size: 1.5em;
+            transition: color 0.5s;
+        }
+
+        #szoveg.visszaszamlalas {
+            color: #f6e05e; /* sárga */
+        }
+
+        #szoveg.riado {
+            color: #fc8181; /* piros */
+            animation: villogas 1s infinite;
+        }
+
+        @keyframes villogas {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        #inditas {
+            padding: 10px 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: #48bb78; /* zöld */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        #inditas:hover {
+            background-color: #38a169;
+        }
+
+        #inditas.disabled {
+            background-color: #a0aec0; /* szürke */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #raketak {
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 20px;
+        }
+
+        .raketa {
+            width: 50px;
+            height: 150px;
+            background-color: #e2e8f0;
+            clip-path: polygon(50% 0%, 100% 75%, 100% 100%, 0 100%, 0 75%);
+            transition: transform 5s ease-in;
+        }
+
+        .raketa.indulo {
+            animation: kiloves 5s ease-in forwards;
+        }
+
+        @keyframes kiloves {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-120vh);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HTML SZERKEZET ===== -->
+    <div id="kilovoallomas">
+        <div id="vezerlopult">
+            <h1 id="szoveg">A kilövőállomás üzemkész.</h1>
+            <button id="inditas">Indítás</button>
+        </div>
+        <div id="raketak">
+            <div class="raketa"></div>
+            <div class="raketa"></div>
+            <div class="raketa"></div>
+        </div>
+    </div>
+
+    <!-- ===== JAVÍTOTT JAVASCRIPT KÓD ===== -->
+    <script>
+        let raketak = document.querySelectorAll(".raketa");
+        let inditasGomb = document.querySelector("#inditas");
+        let szoveg = document.querySelector("#szoveg");
+
+        inditasGomb.addEventListener("click", indit);
+
+        function indit() {
+            inditasGomb.removeEventListener("click", indit);
+            inditasGomb.classList.add("disabled");
+
+            szoveg.innerHTML = "Visszaszámlálás indul...";
+            szoveg.classList.add("visszaszamlalas");
+
+            // A rakéták indítása egymás után, 1 másodperces késleltetéssel
+            for (let i = 0; i < raketak.length; i++) {
+                setTimeout(function() {
+                    raketak[i].classList.add("indulo");
+                }, 1000 * i);
+            }
+
+            // Ahelyett, hogy folyamatosan ellenőriznénk (setInterval), kiszámoljuk,
+            // mikor fejezi be az utolsó rakéta is az animációt, és akkor jelezzük a riadót.
+
+            // Az utolsó rakéta (raketak.length - 1) * 1000 ms múlva indul el.
+            // Az animáció hossza 5000 ms (5s), ezt a CSS-ből tudjuk.
+            // A teljes idő tehát az utolsó rakéta indítási ideje + az animáció ideje.
+            const teljesIdo = (raketak.length - 1) * 1000 + 5000;
+
+            setTimeout(function() {
+                // Ez a kód csak akkor fut le, ha a kilövőállomás ténylegesen üres.
+                szoveg.innerHTML = "A kilövőállomás üres, riadó!";
+                szoveg.classList.remove("visszaszamlalas");
+                szoveg.classList.add("riado");
+            }, teljesIdo);
+        }
+    </script>
+</body>
+</html>
