@@ -3,158 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kijevi helyzet - Riasztás Monitor</title>
+    <title>Riasztás Ellenőrző</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Roboto Mono', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
             background-color: #1a1a1a;
             color: #f0f0f0;
+            transition: background-color 0.5s ease;
         }
         .container {
             text-align: center;
             padding: 40px;
             background-color: #2c2c2c;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            max-width: 800px;
-            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid #444;
         }
         h1 {
             color: #ffffff;
             font-size: 2em;
+            margin-bottom: 5px;
         }
-        #status {
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            font-weight: 500;
-            white-space: pre-wrap; /* Lehetővé teszi a sortöréseket (\n) a szövegben */
-            line-height: 1.6;    /* Jobb olvashatóság a többsoros szövegnél */
+        p {
+            color: #aaa;
+            margin-top: 0;
         }
-        .status-alert {
-            color: cyan;
-            text-align: left; /* Riasztás esetén a szöveg balra igazodik */
+        #status-box {
+            font-size: 2.5em;
+            margin-top: 30px;
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: color 0.5s ease, background-color 0.5s ease;
         }
-        .status-ok {
-            color: lime;
+        /* Alapértelmezett állapot */
+        .neutral {
+            color: #ccc;
+            background-color: #3d3d3d;
         }
-        .status-error {
-            color: #ff4d4d;
+        /* "Igaz" állapot */
+        .is-true {
+            color: #ffffff;
+            background-color: #28a745; /* Élénk zöld */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Kijevi helyzet</h1>
-        <p id="status">Státusz lekérdezése...</p>
+        <h1>Riasztás Egyezés</h1>
+        <p>A rendszer az alerts.in.ua oldalt ellenőrzi.</p>
+        <div id="status-box" class="neutral">Keresés...</div>
     </div>
 
     <script>
-        const targetUrl = 'https://alerts.in.ua/';
+        const targetUrl = 'https://alerts.in.ua/en'; // Az angol nyelvű oldal
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        const statusElement = document.getElementById('status');
-        const UPDATE_INTERVAL = 60000; // 60 másodperc
+        const statusBox = document.getElementById('status-box');
+        const bodyElement = document.body;
 
-        /**
-         * Segédfüggvény az ezredmásodpercek olvasható formátumra alakításához.
-         * @param {number} ms - Az eltelt idő ezredmásodpercben.
-         * @returns {string} - Formázott szöveg, pl. "1 óra 25 perc".
-         */
-        function formatDuration(ms) {
-            if (ms < 0) return "n/a";
-            const totalMinutes = Math.floor(ms / 60000);
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-            
-            const parts = [];
-            if (hours > 0) parts.push(`${hours} óra`);
-            if (minutes > 0) parts.push(`${minutes} perc`);
+        let trueStateUntil = null; // Tárolja, meddig kell az "Igaz" állapotot mutatni
 
-            return parts.length > 0 ? parts.join(' ') : "kevesebb mint egy perce";
-        }
-
-        /**
-         * Megadja az aktuális dátumot a kijevi időzóna szerint.
-         * @returns {Date}
-         */
-        function getKyivDate() {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Kyiv', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false });
-            const parts = formatter.formatToParts(now);
-            const kyivTime = {};
-            for (const part of parts) { if (part.type !== 'literal') kyivTime[part.type] = parseInt(part.value, 10); }
-            return new Date(kyivTime.year, kyivTime.month - 1, kyivTime.day, kyivTime.hour, kyivTime.minute, kyivTime.second);
-        }
-
-        async function updateStatus() {
-            statusElement.classList.remove('status-alert', 'status-ok', 'status-error');
-            statusElement.style.textAlign = 'center';
-            statusElement.innerText = 'Státusz lekérdezése...';
-
-            try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`Hálózati hiba: ${response.status}`);
-                const data = await response.json();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-
-                const regionElements = doc.querySelectorAll('.alarm_blocks .map-region-name');
-                const timeElements = doc.querySelectorAll('.alarm_blocks .alert_time');
-
-                if (regionElements.length > 0) {
-                    statusElement.classList.add('status-alert');
-                    statusElement.style.textAlign = 'left';
-
-                    const kyivDate = getKyivDate();
-                    let earliestAlertUTC = Infinity;
-                    let earliestTimeText = "";
-
-                    for (const timeEl of timeElements) {
-                        const timeStr = timeEl.textContent.trim();
-                        const [hours, minutes] = timeStr.split(':').map(Number);
-                        const currentAlertUTC = Date.UTC(kyivDate.getUTCFullYear(), kyivDate.getUTCMonth(), kyivDate.getUTCDate(), hours, minutes, 0);
-
-                        if (currentAlertUTC < earliestAlertUTC) {
-                            earliestAlertUTC = currentAlertUTC;
-                            earliestTimeText = timeStr;
-                        }
-                    }
-                    
-                    const nowUTC = Date.now();
-                    const durationMs = nowUTC - earliestAlertUTC;
-                    const durationString = formatDuration(durationMs);
-
-                    const regionNames = Array.from(regionElements).map(el => el.textContent.trim());
-                    
-                    statusElement.innerText = 
-                        `Riasztás van érvényben ${regionNames.length} régióban.\n` +
-                        `Időtartam: ${durationString}\n` +
-                        `A legkorábbi ${earliestTimeText} (kijevi idő) óta.\n\n` +
-                        `Érintett területek: ${regionNames.join(', ')}.`;
-
-                } else {
-                    statusElement.classList.add('status-ok');
-                    statusElement.innerText = 'Nincs riasztás.';
-                }
-
-            } catch (error) {
-                console.error('Hiba történt:', error);
-                statusElement.classList.add('status-error');
-                statusElement.innerText = 'Houston, we have a problem.';
+        function checkAlertStatus() {
+            // Ha éppen az "Igaz" állapot 1 perces időablakában vagyunk, ne csináljunk semmit.
+            if (trueStateUntil && Date.now() < trueStateUntil) {
+                return;
             }
+
+            // Ha lejárt az idő, visszaállítjuk az alaphelyzetet.
+            if (trueStateUntil && Date.now() >= trueStateUntil) {
+                trueStateUntil = null;
+                statusBox.textContent = 'Keresés...';
+                statusBox.className = 'neutral';
+                bodyElement.style.backgroundColor = '#1a1a1a';
+            }
+            
+            statusBox.textContent = 'Keresés...';
+
+            fetch(proxyUrl)
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('Hálózati hiba a proxy lekérdezésekor.');
+                })
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // A helyes class névvel keressük az elemet (`alert_time`)
+                    const alertElements = doc.getElementsByClassName('alert_time');
+
+                    if (alertElements.length > 0) {
+                        const timeText = alertElements[0].innerHTML.trim(); // "HH:MM" formátum
+                        const [alertHourKyiv, alertMinute] = timeText.split(':').map(Number);
+
+                        // Átváltás magyar időre (-1 óra)
+                        const alertHourLocal = alertHourKyiv - 1;
+
+                        const now = new Date();
+                        const currentHour = now.getHours();
+                        const currentMinute = now.getMinutes();
+                        
+                        // Összehasonlítás
+                        if (alertHourLocal === currentHour && alertMinute === currentMinute) {
+                            // Egyezés!
+                            statusBox.textContent = 'Igaz';
+                            statusBox.className = 'is-true';
+                            bodyElement.style.backgroundColor = '#0a3d16'; // Sötétzöld háttér
+                            trueStateUntil = Date.now() + 60000; // Beállítjuk az 1 perces időzítőt
+                        } else {
+                            statusBox.textContent = 'Nincs egyezés';
+                        }
+                    } else {
+                        statusBox.textContent = 'Nincs aktív riasztás';
+                    }
+                })
+                .catch(error => {
+                    console.error('Hiba történt:', error);
+                    statusBox.textContent = 'Hiba';
+                    statusBox.className = 'neutral';
+                });
         }
 
-        updateStatus();
-        setInterval(updateStatus, UPDATE_INTERVAL);
+        // Azonnali futtatás az oldal betöltésekor
+        checkAlertStatus();
+        
+        // Ismételt futtatás 15 másodpercenként
+        setInterval(checkAlertStatus, 15000);
     </script>
 </body>
 </html>
