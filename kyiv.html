@@ -5,47 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kyiv statusz</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-            padding: 40px;
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-        h1 {
-            color: #ffffff;
-            font-size: 2em;
-        }
-        #status {
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-        .status-fresh-alert {
-            color: #ff9800;
-            font-weight: bold;
-        }
-        .status-alert {
-            color: cyan;
-        }
-        .status-ok {
-            color: lime;
-        }
-        .status-error {
-            color: #ff4d4d;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #1a1a1a; color: #f0f0f0; }
+        .container { text-align: center; padding: 40px; background-color: #2c2c2c; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
+        h1 { color: #ffffff; font-size: 2em; }
+        #status { font-size: 1.2em; margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: 500; }
+        .status-fresh-alert { color: #ff9800; font-weight: bold; }
+        .status-alert { color: cyan; }
+        .status-ok { color: lime; }
+        .status-error { color: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -53,9 +20,8 @@
         <h1>Kijevi helyzet</h1>
         <p id="status">Státusz lekérdezése...</p>
     </div>
-
     <script>
-        const t="https://alerts.in.ua/",o=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById("status");function a(t){return.5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}function n(){const t=new Date,e=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Kyiv",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",hour12:!1}).formatToParts(t),o={};for(const r of e)r.type!=="literal"&&(o[r.type]=parseInt(r.value,10));return new Date(o.year,o.month-1,o.day,o.hour,o.minute,o.second)}fetch(o).then(t=>t.ok?t.json():Promise.reject(new Error("Hiba"))).then(t=>{const e=new DOMParser,o=e.parseFromString(t.contents,"text/html").getElementsByClassName("alert_time");if(o.length>0){const t=o[0].innerHTML.trim(),[e,r]=t.split(":").map(Number),c=n(),i=Date.UTC(c.getUTCFullYear(),c.getUTCMonth(),c.getUTCDate(),e,r,0),u=Date.now(),l=Math.floor((u-i)/6e4);if(s.classList.remove("status-alert","status-fresh-alert","status-ok","status-error"),l>=0&&l<=15)s.innerText=`FRISS RIASZTÁS! A jelzés ${l} perce kezdődött.`,s.classList.add("status-fresh-alert");else if(l>15){const t=Math.floor(l/30),e=.5*t,o=.5*(t+1),r=`${a(e)} és ${a(o)} órája`;s.innerText=`Riasztás van érvényben, amely ${r} kezdődött.`,s.classList.add("status-alert")}else s.innerText="Időfeldolgozási hiba.",s.classList.add("status-error")}else s.innerText="Nincs riasztás.",s.classList.add("status-ok")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("status-error")});
+        const t="https://alerts.in.ua/",e=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById("status");function o(t){return.5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}function a(){const t=new Date,e=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Kyiv",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",hour12:!1}).formatToParts(t),s={};for(const o of e)o.type!=="literal"&&(s[o.type]=parseInt(o.value,10));return new Date(s.year,s.month-1,s.day,s.hour,s.minute,s.second)}fetch(e).then(t=>t.ok?t.json():Promise.reject(new Error("Hiba"))).then(t=>{const e=new DOMParser,r=e.parseFromString(t.contents,"text/html").getElementsByClassName("alert_time");if(r.length>0){let t=1/0;const n=a();for(const c of r){const e=c.innerHTML.trim(),[s,i]=e.split(":").map(Number),l=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),s,i,0);l<t&&(t=l)}const c=Date.now(),i=Math.floor((c-t)/6e4);if(s.classList.remove("status-alert","status-fresh-alert","status-ok","status-error"),i>=0&&i<=15)s.innerText=`FRISS RIASZTÁS! A legkorábbi jelzés ${i} perce kezdődött.`,s.classList.add("status-fresh-alert");else if(i>15){const t=Math.floor(i/30),e=.5*t,r=.5*(t+1),n=`${o(e)} és ${o(r)} órája`;s.innerText=`Riasztás van érvényben. A legkorábbi ${n} kezdődött.`,s.classList.add("status-alert")}else s.innerText="Időfeldolgozási hiba.",s.classList.add("status-error")}else s.innerText="Nincs riasztás.",s.classList.add("status-ok")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("status-error")});
     </script>
 </body>
 </html>
