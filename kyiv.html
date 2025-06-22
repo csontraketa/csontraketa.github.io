@@ -3,116 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyiv statusz</title>
+    <title>ProjectKyiv</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-bg: #1a1d23;
+            --color-surface: #252a31;
+            --color-primary-text: #e0e0e0;
+            --color-secondary-text: #a0a0a0;
+            --color-border: #3a414c;
+            
+            --color-ok-bg: #1d3c2b;
+            --color-ok-border: #2f9462;
+            
+            --color-alert-bg: #4d2828;
+            --color-alert-border: #e53935;
+
+            --color-error-bg: #4a4a4a;
+            --color-error-border: #9e9e9e;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-primary-text);
             margin: 0;
-            background-color: #1a1a1a; /* Sötét háttér */
-            color: #f0f0f0; /* Világos alapértelmezett szövegszín */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
+
         .container {
+            width: 100%;
+            max-width: 800px;
             text-align: center;
-            padding: 40px;
-            background-color: #2c2c2c; /* Sötétszürke konténer */
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
-        h1 {
-            color: #ffffff;
-            font-size: 2em;
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
-        #status {
-            font-size: 1.2em;
-            margin-top: 20px;
-            padding: 15px;
+
+        header p {
+            color: var(--color-secondary-text);
+            font-size: 1.1em;
+            margin-top: 0;
+        }
+        
+        #last-updated {
+            font-size: 0.9em;
+            color: var(--color-secondary-text);
+            margin-bottom: 20px;
+        }
+
+        #status-card {
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: border-color 0.5s ease, background-color 0.5s ease;
+        }
+        
+        /* Állapotokhoz tartozó stílusok */
+        #status-card.status-checking {
+            border-color: var(--color-border);
+        }
+        #status-card.status-ok {
+            background-color: var(--color-ok-bg);
+            border-color: var(--color-ok-border);
+        }
+        #status-card.status-alert {
+            background-color: var(--color-alert-bg);
+            border-color: var(--color-alert-border);
+        }
+        #status-card.status-error {
+            background-color: var(--color-error-bg);
+            border-color: var(--color-error-border);
+        }
+
+        #status-text {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        #status-info {
+            font-size: 1em;
+            color: var(--color-secondary-text);
+            margin: 5px 0 0 0;
+            min-height: 1.2em;
+        }
+
+        #regions-container {
+            display: none; /* Alapból rejtett */
+            background-color: var(--color-surface);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        #regions-container h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 10px;
+        }
+
+        #regions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        #regions-list li {
+            background-color: var(--color-bg);
+            padding: 10px 15px;
             border-radius: 6px;
-            font-weight: 500;
         }
-        /* Új stílusosztályok a különböző állapotokhoz */
-        .status-alert {
-            color: cyan;
-        }
-        .status-ok {
-            color: lime;
-        }
-        .status-error {
-            color: #ff4d4d; /* Élénk piros a jobb láthatóságért */
-        }
+
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Kijevi helyzet</h1>
-        <p id="status">Státusz lekérdezése...</p>
+        <header>
+            <h1>ProjectKyiv</h1>
+            <p>alerts.in.ua</p>
+        </header>
+
+        <p id="last-updated">FRISSÍTÉS...</p>
+
+        <div id="status-card" class="status-checking">
+            <h2 id="status-text">ELLENŐRZÉS...</h2>
+            <p id="status-info"></p>
+        </div>
+
+        <div id="regions-container">
+            <h3>Régiók:</h3>
+            <ul id="regions-list"></ul>
+        </div>
     </div>
 
     <script>
-        const targetUrl = 'https://alerts.in.ua/';
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        const statusElement = document.getElementById('status');
+        const statusCard = document.getElementById('status-card');
+        const statusText = document.getElementById('status-text');
+        const statusInfo = document.getElementById('status-info');
+        const regionsContainer = document.getElementById('regions-container');
+        const regionsList = document.getElementById('regions-list');
+        const lastUpdatedElement = document.getElementById('last-updated');
+        const TARGET_URL = 'https://alerts.in.ua/';
+        const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET_URL)}`;
+        const UPDATE_INTERVAL = 60000; 
 
-        function formatHourText(hours) {
-            if (hours === 0.5) return 'fél';
-            if (hours === 1) return 'egy';
-            if (hours === 1.5) return 'másfél';
-            return String(hours);
+        async function updateStatus() {
+            statusCard.className = 'status-checking';
+            statusText.textContent = 'ELLENŐRZÉS...';
+            statusInfo.textContent = '';
+            
+            try {
+                const response = await fetch(PROXY_URL);
+                if (!response.ok) {
+                    throw new Error(`Hálózati hiba: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                const regionElements = doc.querySelectorAll('.alarm_blocks .map-region-name');
+                const timeElements = doc.querySelectorAll('.alarm_blocks .alert_time');
+
+                if (regionElements.length > 0) {
+                    statusCard.className = 'status-alert';
+                    statusText.textContent = 'RIASZTÁS VAN ÉRVÉNYBEN';
+                    
+                    const regionNames = Array.from(regionElements).map(el => el.textContent.trim());
+                    regionsList.innerHTML = regionNames.map(name => `<li>${name}</li>`).join('');
+                    regionsContainer.style.display = 'block';
+
+                    if (timeElements.length > 0) {
+                        const alertTimes = Array.from(timeElements).map(el => {
+                           const [hours, minutes] = el.textContent.trim().split(':');
+                           return parseInt(hours) * 60 + parseInt(minutes); 
+                        });
+                        const earliestTimeInMinutes = Math.min(...alertTimes);
+                        const hours = Math.floor(earliestTimeInMinutes / 60).toString().padStart(2, '0');
+                        const minutes = (earliestTimeInMinutes % 60).toString().padStart(2, '0');
+                        statusInfo.textContent = `A legkorábbi riasztás ${hours}:${minutes} (kijevi idő) óta tart.`;
+                    }
+                    
+                } else {
+                    statusCard.className = 'status-ok';
+                    statusText.textContent = 'JELENLEG NYUGALOM VAN';
+                    statusInfo.textContent = 'Nincs aktív riasztás az ország területén.';
+                    regionsContainer.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Hiba történt az adatok lekérésekor:', error);
+                statusCard.className = 'status-error';
+                statusText.textContent = 'ADATLEKÉRÉSI HIBA';
+                statusInfo.textContent = 'Nem sikerült elérni a riasztási adatokat. Kérjük, próbálja meg később.';
+                regionsContainer.style.display = 'none';
+            } finally {
+                lastUpdatedElement.textContent = `Utoljára frissítve: ${new Date().toLocaleTimeString('hu-HU')}`;
+            }
         }
 
-        fetch(proxyUrl)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Hálózati hiba a proxy lekérdezésekor.');
-            })
-            .then(data => {
-                const htmlContent = data.contents;
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
-                
-                // Keresés a kérésed szerint, a `.getElementsByClassName`-nel
-                const alertElements = doc.getElementsByClassName('alert_time');
-
-                // Ellenőrizzük, hogy találtunk-e egyáltalán ilyen elemet
-                if (alertElements.length > 0) {
-                    const alertTimeElement = alertElements[0]; // Az első elemre van szükségünk
-                    const timeText = alertTimeElement.innerHTML.trim(); // Kiolvasás .innerHTML-lel
-                    
-                    const [hours, minutes] = timeText.split(':').map(Number);
-                    const now = new Date();
-                    const alertDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-
-                    const diffMs = now.getTime() - alertDate.getTime();
-                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-                    let durationText;
-                    if (diffMinutes < 30) {
-                        durationText = 'kevesebb mint fél órája';
-                    } else {
-                        const halfHourBlocks = Math.floor(diffMinutes / 30);
-                        const startHours = halfHourBlocks * 0.5;
-                        const endHours = (halfHourBlocks + 1) * 0.5;
-                        durationText = `${formatHourText(startHours)} és ${formatHourText(endHours)} órája`;
-                    }
-
-                    statusElement.innerText = `Riasztás van érvényben, amely ${durationText} kezdődött.`;
-                    statusElement.classList.add('status-alert'); // Cián szín riasztás esetén
-
-                } else {
-                    statusElement.innerText = 'Nincs riasztás.';
-                    statusElement.classList.add('status-ok'); // Lime szín, ha nincs riasztás
-                }
-            })
-            .catch(error => {
-                console.error('Hiba történt:', error);
-                statusElement.innerText = 'Houston, we have a problem.';
-                statusElement.classList.add('status-error'); // Piros szín hiba esetén
-            });
+        updateStatus();
+        setInterval(updateStatus, UPDATE_INTERVAL);
     </script>
+
 </body>
 </html>
