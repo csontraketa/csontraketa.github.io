@@ -3,48 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectKyiv</title>
+    <title>Kyiv statusz</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        #status { font-size: 1.2em; font-weight: bold; }
-        .error { color: red; }
-        .success { color: green; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 2em;
+        }
+        #status {
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .success {
+            background-color: #e7f3ff;
+            color: #1877f2;
+        }
+        .error {
+            background-color: #fbe3e4;
+            color: #c0392b;
+        }
     </style>
 </head>
 <body>
-    <div id="status">Adatok lekérdezése...</div>
+    <div class="container">
+        <h1>Kijevi helyzet</h1>
+        <p id="status">Státusz lekérdezése...</p>
+    </div>
+
     <script>
-        const targetUrl = 'https://alerts.in.ua/';
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        const statusElement = document.getElementById('status');
-        fetch(proxyUrl)
-            .then(response => {
-                if (response.ok) {
-                    return response.json(); 
-                }
-                throw new Error('Hálózati hiba a proxy lekérdezésekor.');
-            })
-            .then(data => {
-                const htmlContent = data.contents;
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
-                const alertTimeElement = doc.querySelector('.alert_time');
-
-                if (alertTimeElement) {
-                    const timeText = alertTimeElement.innerText.trim();
-                    statusElement.innerText = timeText;
-                    statusElement.classList.add('success');
-                } else {
-                    statusElement.innerText = 'Nincs riasztás.';
-                    statusElement.classList.add('success');
-                }
-            })
-            .catch(error => {
-                console.error('Hiba történt:', error);
-                statusElement.innerText = 'Houston, we have a problem.';
-                statusElement.classList.add('error');
-            });
+        const t='https://alerts.in.ua/',p=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById('status');function f(t){return .5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}fetch(p).then(t=>{if(t.ok)return t.json();throw new Error("Hálózati hiba a proxy lekérdezésekor.")}).then(t=>{const e=t.contents,o=new DOMParser,n=o.parseFromString(e,"text/html"),a=n.querySelector(".alert_time");if(a){const t=a.innerText.trim(),[e,o]=t.split(":").map(Number),r=new Date,i=new Date(r.getFullYear(),r.getMonth(),r.getDate(),e,o),c=r.getTime()-i.getTime(),l=Math.floor(c/6e4);let u;u=l<0?"a riasztás időfeldolgozása sikertelen":l<30?"kevesebb mint fél órája":(()=>{const t=Math.floor(l/30),e=t*.5,o=(t+1)*.5;return`${f(e)} és ${f(o)} órája`})(),s.innerText=`Riasztás van érvényben, amely ${u} kezdődött.`,s.classList.add("success")}else s.innerText="Nincs riasztás.",s.classList.add("success")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("error")});
     </script>
-
 </body>
 </html>
