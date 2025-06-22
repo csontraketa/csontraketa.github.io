@@ -33,6 +33,10 @@
             border-radius: 6px;
             font-weight: 500;
         }
+        .status-fresh-alert {
+            color: #ff9800;
+            font-weight: bold;
+        }
         .status-alert {
             color: cyan;
         }
@@ -51,7 +55,7 @@
     </div>
 
     <script>
-        const t='https://alerts.in.ua/',o=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById("status");function a(t){return.5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}function n(){const t=new Date,e=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Kyiv",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",hour12:!1}).formatToParts(t),o={};for(const r of e)r.type!=="literal"&&(o[r.type]=parseInt(r.value,10));return new Date(o.year,o.month-1,o.day,o.hour,o.minute,o.second)}fetch(o).then(t=>t.ok?t.json():Promise.reject(new Error("Hálózati hiba"))).then(t=>{const e=new DOMParser,o=e.parseFromString(t.contents,"text/html").getElementsByClassName("alert_time");if(o.length>0){const t=o[0].innerHTML.trim(),[e,r]=t.split(":").map(Number),c=n(),i=Date.UTC(c.getUTCFullYear(),c.getUTCMonth(),c.getUTCDate(),e,r,0),u=Date.now(),l=Math.floor((u-i)/6e4);let m;m=l<0?"(időzóna hiba)":l<30?"kevesebb mint fél órája":(()=>{const t=Math.floor(l/30),e=.5*t,o=.5*(t+1);return`${a(e)} és ${a(o)} órája`})(),s.innerText=`Riasztás van érvényben, amely ${m} kezdődött.`,s.classList.add("status-alert")}else s.innerText="Nincs riasztás.",s.classList.add("status-ok")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("status-error")});
+        const t="https://alerts.in.ua/",o=`https://api.allorigins.win/get?url=${encodeURIComponent(t)}`,s=document.getElementById("status");function a(t){return.5===t?"fél":1===t?"egy":1.5===t?"másfél":String(t)}function n(){const t=new Date,e=new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Kyiv",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",hour12:!1}).formatToParts(t),o={};for(const r of e)r.type!=="literal"&&(o[r.type]=parseInt(r.value,10));return new Date(o.year,o.month-1,o.day,o.hour,o.minute,o.second)}fetch(o).then(t=>t.ok?t.json():Promise.reject(new Error("Hiba"))).then(t=>{const e=new DOMParser,o=e.parseFromString(t.contents,"text/html").getElementsByClassName("alert_time");if(o.length>0){const t=o[0].innerHTML.trim(),[e,r]=t.split(":").map(Number),c=n(),i=Date.UTC(c.getUTCFullYear(),c.getUTCMonth(),c.getUTCDate(),e,r,0),u=Date.now(),l=Math.floor((u-i)/6e4);if(s.classList.remove("status-alert","status-fresh-alert","status-ok","status-error"),l>=0&&l<=15)s.innerText=`FRISS RIASZTÁS! A jelzés ${l} perce kezdődött.`,s.classList.add("status-fresh-alert");else if(l>15){const t=Math.floor(l/30),e=.5*t,o=.5*(t+1),r=`${a(e)} és ${a(o)} órája`;s.innerText=`Riasztás van érvényben, amely ${r} kezdődött.`,s.classList.add("status-alert")}else s.innerText="Időfeldolgozási hiba.",s.classList.add("status-error")}else s.innerText="Nincs riasztás.",s.classList.add("status-ok")}).catch(t=>{console.error("Hiba történt:",t),s.innerText="Houston, we have a problem.",s.classList.add("status-error")});
     </script>
 </body>
 </html>
